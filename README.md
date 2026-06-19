@@ -59,12 +59,10 @@ By default, screenshots load from local `public/` paths. For R2, set:
 NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 ```
 
-The frontend prefixes existing public asset paths. If assets are moved to R2, keep the same path shape:
+The frontend prefixes existing public asset paths. If assets are moved to R2, keep the same card screenshot path shape:
 
 ```text
-covers/codex/{modelSlug}/{showcaseId}.webp
 model-screenshots/{modelSlug}/{showcaseId}/desktop.webp
-model-screenshots/{modelSlug}/{showcaseId}/mobile.webp
 ```
 
 Contributors should not commit generated screenshots for new models unless requested. The maintainer should capture real pages, compress the images to WebP, and upload them to R2.

@@ -35,6 +35,7 @@ yarn-error.log*
 !.env.example
 
 # local agent/editor workspace
+.codex/
 .trae/
 .wrangler/
 

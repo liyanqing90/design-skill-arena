@@ -1,5 +1,6 @@
 import type { ShowcaseItem } from "@/types/showcase"
 import { GLM_MODEL_SLUG, glmShowcases } from "@/data/glm-5.2-showcases"
+import { coverScreenshots } from "@/data/showcase-assets"
 
 const screenshotFor = (id: string) => ({
   desktop: `/screenshots/${id}/desktop.png`,
@@ -305,18 +306,13 @@ const models = [
   { model: "Kimi 2.7 Code", provider: "Moonshot", slug: "kimi-2.7-code" },
 ] as const
 
-const modelScreenshots = (modelSlug: string, showcaseId: string) => ({
-  desktop: `/covers/codex/${modelSlug}/${showcaseId}.webp`,
-  mobile: `/covers/codex/${modelSlug}/${showcaseId}.webp`,
-})
-
 const generatedShowcases: ShowcaseItem[] = models.flatMap(({ model, provider, slug }) =>
   baseShowcases.map((item) => ({
     ...item,
     id: `${slug}-${item.id}`,
     provider,
     model,
-    screenshots: modelScreenshots(slug, item.id),
+    screenshots: coverScreenshots(slug, item.id),
     demoUrl: `/model-showcase/${slug}/${item.id}`,
     sourceUrl: item.id,
   }))

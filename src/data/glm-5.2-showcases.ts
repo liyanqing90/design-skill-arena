@@ -1,12 +1,10 @@
 import type { ShowcaseItem } from "@/types/showcase"
+import { coverScreenshots } from "@/data/showcase-assets"
 
 export const GLM_MODEL_NAME = "GLM 5.2"
 export const GLM_MODEL_SLUG = "glm-5.2"
 
-const screenshotFor = (id: string) => ({
-  desktop: `/model-screenshots/glm-5.2/${id}/desktop.webp`,
-  mobile: `/model-screenshots/glm-5.2/${id}/mobile.webp`,
-})
+const screenshotFor = (id: string) => coverScreenshots(GLM_MODEL_SLUG, id)
 
 export const glmShowcases: ShowcaseItem[] = [
   {

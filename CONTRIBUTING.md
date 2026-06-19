@@ -38,12 +38,10 @@ Do not add a chain just for one model in the main gallery. That makes model comp
 
 Screenshots should come from real rendered pages.
 
-Default asset paths:
+Default card screenshot path:
 
 ```text
-covers/codex/{modelSlug}/{showcaseId}.webp
 model-screenshots/{modelSlug}/{showcaseId}/desktop.webp
-model-screenshots/{modelSlug}/{showcaseId}/mobile.webp
 ```
 
 For production, maintainers may upload the same paths to R2 and set:
