@@ -51,6 +51,19 @@ Build command: pnpm build:static
 Output directory: out
 ```
 
+## Likes
+
+Likes are an optional Cloudflare Pages Functions enhancement. The gallery does not call the API on initial page load; counts load only when a card is focused, hovered, opened, or liked.
+
+Production uses D1:
+
+```bash
+pnpm db:migrate:remote
+pnpm dlx wrangler@latest pages secret put VOTE_HASH_SALT --project-name design-skill-arena
+```
+
+The vote table stores only `target_id`, an anonymous salted visitor hash, and a timestamp. If the API or D1 binding is unavailable, the static gallery still works.
+
 ## Asset Hosting
 
 By default, screenshots load from local `public/` paths. For R2, set:

@@ -52,6 +52,18 @@ NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 
 Do not include API keys, R2 credentials, or Cloudflare tokens in a PR.
 
+## Likes
+
+Do not add model-specific vote code. Votes are keyed by the existing showcase item ID and handled by the shared Cloudflare Pages Function.
+
+For maintainers changing vote storage:
+
+```bash
+pnpm db:migrate:remote
+```
+
+Keep the API optional. A missing D1 binding must not break the static gallery.
+
 ## Checks
 
 ```bash

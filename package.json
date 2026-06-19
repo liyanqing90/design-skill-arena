@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:static": "NEXT_OUTPUT=export next build",
+    "db:migrate:remote": "pnpm dlx wrangler@latest d1 migrations apply design-skill-arena-votes --remote",
     "deploy:cloudflare": "pnpm build:static && pnpm dlx wrangler@latest pages deploy out --project-name design-skill-arena",
     "start": "next start",
     "lint": "eslint",

@@ -1,7 +1,7 @@
 "use client"
 
 import { type ReactNode, useEffect, useMemo, useState } from "react"
-import { Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Maximize2 } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Heart, Maximize2 } from "lucide-react"
 
 import { ShowcaseCard } from "@/components/arena/showcase-card"
 import { ArenaTopNav } from "@/components/layout/arena-top-nav"
@@ -26,8 +26,14 @@ import { allModels, showcases } from "@/data/showcases"
 import { defaultLocale, messages } from "@/i18n"
 
 const pageSize = 20
+const votedStorageKey = "design-skill-arena:voted"
 type Locale = keyof typeof messages
 type FilterOption = { value: string; label: string }
+type VoteResponse = {
+  counts?: Record<string, number>
+  count?: number
+  voted?: string[] | boolean
+}
 const handoffPrompts: Record<Locale, string> = {
   "zh-CN": `{MODEL_NAME} = 当前模型名称
 {MODEL_SLUG} = 当前模型标识
@@ -439,6 +445,11 @@ export function HomePage() {
   const [skillsOpen, setSkillsOpen] = useState(false)
   const [copiedPrompt, setCopiedPrompt] = useState(false)
   const [previewScale, setPreviewScale] = useState(0.818)
+  const [voteCounts, setVoteCounts] = useState<Record<string, number>>({})
+  const [loadedVoteIds, setLoadedVoteIds] = useState<Set<string>>(new Set())
+  const [votedIds, setVotedIds] = useState<Set<string>>(new Set())
+  const [votingId, setVotingId] = useState<string | null>(null)
+  const [votesAvailable, setVotesAvailable] = useState(true)
   const text = messages[locale]
   const handoffPrompt = handoffPrompts[locale]
   const combos = useMemo(
@@ -465,6 +476,18 @@ export function HomePage() {
   }, [locale])
 
   useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      try {
+        setVotedIds(new Set(JSON.parse(localStorage.getItem(votedStorageKey) || "[]")))
+      } catch {
+        localStorage.removeItem(votedStorageKey)
+      }
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
+  }, [])
+
+  useEffect(() => {
     const updatePreviewScale = () => {
       setPreviewScale(Math.max(0.24, Math.min(0.818, (window.innerWidth - 32) / 1440)))
     }
@@ -489,8 +512,15 @@ export function HomePage() {
   function moveSelection(offset: number) {
     setSelectedIndex((current) => {
       if (current === null || filtered.length === 0) return current
-      return (current + offset + filtered.length) % filtered.length
+      const next = (current + offset + filtered.length) % filtered.length
+      void loadVotesFor([filtered[next].id])
+      return next
     })
+  }
+
+  function openPreview(index: number) {
+    setSelectedIndex(index)
+    void loadVotesFor([filtered[index].id])
   }
 
   async function copyPrompt() {
@@ -509,6 +539,67 @@ export function HomePage() {
     }
     setCopiedPrompt(true)
     window.setTimeout(() => setCopiedPrompt(false), 1400)
+  }
+
+  async function loadVotesFor(itemIds: string[]) {
+    const ids = itemIds.filter((id) => !loadedVoteIds.has(id)).slice(0, 20)
+    if (!votesAvailable || ids.length === 0) return
+
+    try {
+      const response = await fetch(`/api/votes?ids=${encodeURIComponent(ids.join(","))}`)
+      const data = (await response.json()) as VoteResponse & { enabled?: boolean }
+      if (!response.ok) throw new Error("Vote load failed")
+
+      setVoteCounts((current) => {
+        const next = { ...current }
+        ids.forEach((id) => {
+          next[id] = Number(data.counts?.[id] ?? 0)
+        })
+        return next
+      })
+      setLoadedVoteIds((current) => new Set([...current, ...ids]))
+      setVotesAvailable(data.enabled !== false)
+      if (Array.isArray(data.voted)) {
+        const voted = data.voted
+        setVotedIds((current) => {
+          const next = new Set([...current, ...voted])
+          localStorage.setItem(votedStorageKey, JSON.stringify([...next]))
+          return next
+        })
+      }
+    } catch {
+      setVotesAvailable(false)
+    }
+  }
+
+  async function voteFor(itemId: string) {
+    if (!votesAvailable || votedIds.has(itemId) || votingId) return
+
+    setVotingId(itemId)
+    try {
+      const response = await fetch("/api/votes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetId: itemId }),
+      })
+      const data = (await response.json()) as VoteResponse
+      if (!response.ok) throw new Error("Vote failed")
+
+      setVoteCounts((current) => ({
+        ...current,
+        [itemId]: Number(data.count ?? current[itemId] ?? 0),
+      }))
+      setLoadedVoteIds((current) => new Set(current).add(itemId))
+      setVotedIds((current) => {
+        const next = new Set(current).add(itemId)
+        localStorage.setItem(votedStorageKey, JSON.stringify([...next]))
+        return next
+      })
+    } catch {
+      setVotesAvailable(false)
+    } finally {
+      setVotingId(null)
+    }
   }
 
   return (
@@ -568,7 +659,19 @@ export function HomePage() {
               item={item}
               index={index}
               coverAlt={text.gallery.coverAlt.replace("{title}", `${item.model} ${item.title}`)}
-              onOpen={() => setSelectedIndex((page - 1) * pageSize + index)}
+              onOpen={() => openPreview((page - 1) * pageSize + index)}
+              onLoadVotes={() => loadVotesFor([item.id])}
+              onVote={() => voteFor(item.id)}
+              voteCount={loadedVoteIds.has(item.id) ? voteCounts[item.id] ?? 0 : undefined}
+              voteLabel={
+                votesAvailable
+                  ? votedIds.has(item.id)
+                    ? text.common.liked
+                    : text.common.like
+                  : text.common.likesUnavailable
+              }
+              voted={votedIds.has(item.id)}
+              voting={!votesAvailable || votingId === item.id}
             />
           ))}
           {pageItems.length === 0 ? (
@@ -647,6 +750,14 @@ export function HomePage() {
                   </DialogTitle>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
+                  <PreviewDialogAction
+                    type="button"
+                    disabled={!votesAvailable || votedIds.has(selectedItem.id) || votingId === selectedItem.id}
+                    onClick={() => voteFor(selectedItem.id)}
+                  >
+                    <Heart size={15} aria-hidden="true" className={votedIds.has(selectedItem.id) ? "fill-current" : ""} />
+                    {voteCounts[selectedItem.id] ?? 0}
+                  </PreviewDialogAction>
                   <PreviewDialogAction type="button" onClick={() => moveSelection(-1)}>
                     <ChevronLeft size={15} aria-hidden="true" />
                     {text.common.previous}
@@ -771,11 +882,12 @@ type PreviewDialogActionProps =
       href?: never
       onClick: () => void
       type: "button"
+      disabled?: boolean
     }
 
 function PreviewDialogAction(props: PreviewDialogActionProps) {
   const className =
-    "inline-flex min-h-10 items-center gap-2 border border-zinc-950/15 px-3 font-mono text-xs text-zinc-700 transition hover:border-zinc-950 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-zinc-950/15"
+    "inline-flex min-h-10 items-center gap-2 border border-zinc-950/15 px-3 font-mono text-xs text-zinc-700 transition hover:border-zinc-950 hover:text-zinc-950 disabled:cursor-default disabled:opacity-45 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-zinc-950/15"
 
   if (props.href) {
     return (
@@ -786,7 +898,12 @@ function PreviewDialogAction(props: PreviewDialogActionProps) {
   }
 
   return (
-    <button type={props.type} onClick={props.onClick} className={className}>
+    <button
+      type={props.type}
+      onClick={props.onClick}
+      disabled={"disabled" in props ? props.disabled : undefined}
+      className={className}
+    >
       {props.children}
     </button>
   )
