@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { SiteChrome } from "@/components/layout/site-chrome";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const siteUrl = "https://arena.xflux.cn"
@@ -50,9 +49,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
-        <TooltipProvider>
-          <SiteChrome>{children}</SiteChrome>
-        </TooltipProvider>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

@@ -1,4 +1,3 @@
-import Image from "next/image"
 import { Heart } from "lucide-react"
 
 import type { ShowcaseItem } from "@/types/showcase"
@@ -9,7 +8,6 @@ export function ShowcaseCard({
   index,
   item,
   onOpen,
-  onLoadVotes,
   onVote,
   voteCount,
   voteLabel,
@@ -20,7 +18,6 @@ export function ShowcaseCard({
   index: number
   item: ShowcaseItem
   onOpen: () => void
-  onLoadVotes: () => void
   onVote: () => void
   voteCount?: number
   voteLabel: string
@@ -33,19 +30,17 @@ export function ShowcaseCard({
     <article
       className="arena-enter flex min-h-full flex-col text-zinc-950"
       style={{ animationDelay: `${index * 25}ms` }}
-      onMouseEnter={onLoadVotes}
-      onFocus={onLoadVotes}
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg border border-zinc-950/15 bg-white">
         <button type="button" onClick={onOpen} className="group size-full text-left">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element -- ponytail: R2 serves compressed WebP; next/image is disabled for static export. */}
+          <img
             src={coverSrc}
             alt={coverAlt}
-            fill
-            sizes="(min-width: 1440px) 20vw, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
-            priority={index === 0}
-            unoptimized
-            className="object-cover object-top transition duration-300 group-hover:scale-[1.025]"
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "auto"}
+            decoding="async"
+            className="size-full object-cover object-top transition duration-300 group-hover:scale-[1.025]"
           />
         </button>
         <button
