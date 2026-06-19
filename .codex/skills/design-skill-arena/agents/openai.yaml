@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Skill Arena"
+  short_description: "Maintain this gallery workflow"
+  default_prompt: "Use $design-skill-arena to update this project safely."
