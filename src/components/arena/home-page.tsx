@@ -28,7 +28,8 @@ import { defaultLocale, messages } from "@/i18n"
 const pageSize = 20
 type Locale = keyof typeof messages
 type FilterOption = { value: string; label: string }
-const handoffPrompt = `{MODEL_NAME} = 当前模型名称
+const handoffPrompts: Record<Locale, string> = {
+  "zh-CN": `{MODEL_NAME} = 当前模型名称
 {MODEL_SLUG} = 当前模型标识
 
 当前使用模型是：{MODEL_NAME}
@@ -226,7 +227,207 @@ frontend-design + ui-ux-pro-max + web-interface-guidelines + impeccable
 - 不要 iframe
 - 不要评分、排名、结论
 - 不要做普通 Landing Page
-- 不要把 18 个页面做成同一套模板`
+- 不要把 18 个页面做成同一套模板`,
+  "en-US": `{MODEL_NAME} = current model name
+{MODEL_SLUG} = current model slug
+
+Current model: {MODEL_NAME}
+Current model slug: {MODEL_SLUG}
+
+You are taking over an existing project: Design Skill Arena.
+
+Your scope is intentionally strict:
+
+Only add one independent set of showcase pages for the current model.
+Do not modify the homepage.
+Do not modify homepage cards.
+Do not modify model filtering.
+Do not modify pagination.
+Do not modify i18n.
+Do not modify global display logic.
+Do not overwrite existing showcase pages.
+Do not restructure the project.
+
+Another maintainer will connect the results to the homepage later.
+
+You only need to:
+1. Generate 18 independent Muse showcase pages for the current model.
+2. Display the model name label on every page: {MODEL_NAME}
+3. Display the corresponding skills / chain label on every page.
+4. Make every page directly openable.
+5. Implement real local interaction on every page.
+6. Make every page responsive on desktop and mobile.
+
+Recommended directory:
+
+src/components/model-showcases/{MODEL_SLUG}/
+
+One file per combination, for example:
+
+src/components/model-showcases/{MODEL_SLUG}/standard-builder.tsx
+src/components/model-showcases/{MODEL_SLUG}/visual-frontend.tsx
+src/components/model-showcases/{MODEL_SLUG}/design-logic.tsx
+...
+src/components/model-showcases/{MODEL_SLUG}/max-quality-chain.tsx
+
+Recommended standalone preview route:
+
+/model-showcase/{MODEL_SLUG}/{showcaseId}
+
+Examples:
+/model-showcase/{MODEL_SLUG}/standard-builder
+/model-showcase/{MODEL_SLUG}/visual-frontend
+/model-showcase/{MODEL_SLUG}/max-quality-chain
+
+If the project already has a suitable independent preview route, you may reuse it, but it must:
+- Not overwrite existing pages
+- Make the model and showcaseId distinguishable in the URL
+- Open directly as a standalone page
+
+Suggested screenshot path:
+
+public/model-screenshots/{MODEL_SLUG}/{showcaseId}/desktop.png
+
+Do not modify existing public/screenshots, to avoid overwriting another model's covers.
+
+Fixed product requirement:
+
+Create a single-page AI Campaign Studio named Muse.
+The user is a creative director creating a launch campaign for a new product.
+
+Every Muse result page must include:
+- Campaign Brief input
+- Controls for target audience, channel, tone, and visual style
+- A large main creative preview
+- Three switchable creative variations
+- Reach, CTR, and Conversion prediction metrics
+- Activity / recent actions
+- Generate, Save, and Export actions
+- Loading, Success, Error, Selected, Hover, and Focus states
+- Desktop and Mobile responsive layouts
+
+Required behavior:
+- Clicking creative options A / B / C updates the main preview and metrics
+- Clicking Generate shows a generating state, then success or error
+- Changing controls visibly updates the preview content
+- Use local mock data only, with no backend
+- Each result page is standalone, not nested in an iframe
+
+Most important rule:
+
+Treat the 18 combinations for the current model as 18 independent new projects.
+
+This means:
+- The 18 combinations only share the same Muse product requirement
+- Each combination must independently analyze the requirement, break down interaction, plan layout, and define visual direction
+- Do not reuse another model's page implementation
+- Do not reuse existing showcase pages in this project
+- Do not make the 18 combinations from one shared template
+- Do not merely change colors, backgrounds, or titles
+- Each page should feel like an independently designed result from the current model
+- The skills / chain differences must appear in:
+  - Page structure
+  - Information architecture
+  - Main visual treatment
+  - Control organization
+  - Interaction states
+  - Responsive strategy
+
+18 combinations:
+
+01 Standard Builder
+frontend-app-builder
+
+02 Visual Frontend
+frontend-skill
+
+03 Design Logic
+frontend-design
+
+04 Impeccable Full Flow
+impeccable
+
+05 Artifact Builder
+web-artifacts-builder / artifacts-builder
+
+06 UX Pro Reference
+ui-ux-pro-max
+
+07 Component System
+shadcn-best-practices / shadcn
+
+08 Motion Bits
+react-bits
+
+09 Standard + Taste
+frontend-app-builder + taste-skill
+
+10 Standard + Impeccable
+frontend-app-builder + impeccable
+
+11 Visual + Taste
+frontend-skill + taste-skill
+
+12 Visual + Impeccable
+frontend-skill + impeccable
+
+13 Design + UX Pro
+frontend-design + ui-ux-pro-max
+
+14 Design + Impeccable
+frontend-design + impeccable
+
+15 Balanced Chain
+frontend-app-builder + taste-skill + impeccable
+
+16 Visual Premium Chain
+frontend-skill + taste-skill + impeccable
+
+17 Product Polish Chain
+frontend-app-builder + shadcn-best-practices + web-interface-guidelines + impeccable
+
+18 Max Quality Chain
+frontend-design + ui-ux-pro-max + web-interface-guidelines + impeccable
+
+In-page requirements:
+- Every page must clearly show the model name label: {MODEL_NAME}
+- Every page must clearly show the skills / chain label
+- Do not include scoring
+- Do not include rankings
+- Do not include conclusions
+- Do not write "best"
+- Do not turn requirement analysis into explanatory UI copy
+
+Execution flow:
+
+1. Read the current project structure only to confirm the stack and safe places to add files.
+2. Add the current model's dedicated directory.
+3. Add the current model's standalone route.
+4. Generate 18 independent pages.
+5. Show {MODEL_NAME} and the corresponding skills / chain label on every page.
+6. Implement real interaction on every page.
+7. Make every page responsive.
+8. Do not modify the homepage.
+9. Do not modify existing showcase data.
+10. Do not overwrite existing screenshots.
+11. Save screenshots for all 18 pages to public/model-screenshots/{MODEL_SLUG}/{showcaseId}/desktop.png.
+12. Output the new page URL list for later integration.
+13. Run typecheck, lint, and build.
+
+Restrictions:
+- Do not modify the homepage
+- Do not modify homepage display data
+- Do not modify model filtering
+- Do not modify pagination
+- Do not modify i18n
+- Do not overwrite existing pages
+- Do not overwrite existing screenshots
+- Do not reinitialize the project
+- Do not use iframe
+- Do not include scoring, rankings, or conclusions
+- Do not make a generic landing page
+- Do not turn the 18 pages into one repeated template`,
+}
 
 export function HomePage() {
   const [locale, setLocale] = useState<Locale>(defaultLocale)
@@ -239,6 +440,7 @@ export function HomePage() {
   const [copiedPrompt, setCopiedPrompt] = useState(false)
   const [previewScale, setPreviewScale] = useState(0.818)
   const text = messages[locale]
+  const handoffPrompt = handoffPrompts[locale]
   const combos = useMemo(
     () => Array.from(new Map(showcases.map((item) => [item.sourceUrl ?? item.id, item.title])).entries()),
     []
@@ -257,6 +459,10 @@ export function HomePage() {
   const pages = Array.from({ length: pageCount }, (_, index) => index + 1)
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize)
   const selectedItem = selectedIndex === null ? null : filtered[selectedIndex]
+
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
 
   useEffect(() => {
     const updatePreviewScale = () => {
@@ -313,6 +519,12 @@ export function HomePage() {
           onLocaleChange={setLocale}
           onPromptOpen={() => setPromptOpen(true)}
           onSkillsOpen={() => setSkillsOpen(true)}
+          labels={{
+            siteName: text.common.siteName,
+            generatedBy: text.common.generatedBy,
+            prompt: text.common.prompt,
+            skillsSummary: text.common.skillsSummary,
+          }}
           showGenerationMeta
         />
 
@@ -321,9 +533,6 @@ export function HomePage() {
             <h1 className="max-w-5xl text-6xl font-semibold leading-[0.9] sm:text-8xl lg:text-9xl 2xl:text-[9rem]">
               {text.home.title}
             </h1>
-            <p className="max-w-3xl text-sm leading-6 text-zinc-500 sm:text-base">
-              {text.home.subtitle}
-            </p>
           </div>
 
           <div className="relative z-20 grid border-y border-zinc-950/15 sm:grid-cols-2 lg:w-[520px] lg:justify-self-end">
@@ -440,14 +649,14 @@ export function HomePage() {
                 <div className="flex shrink-0 items-center gap-2">
                   <PreviewDialogAction type="button" onClick={() => moveSelection(-1)}>
                     <ChevronLeft size={15} aria-hidden="true" />
-                    上一个
+                    {text.common.previous}
                   </PreviewDialogAction>
                   <PreviewDialogAction type="button" onClick={() => moveSelection(1)}>
-                    下一个
+                    {text.common.next}
                     <ChevronRight size={15} aria-hidden="true" />
                   </PreviewDialogAction>
                   <PreviewDialogAction href={selectedItem.demoUrl}>
-                    打开页面
+                    {text.common.openResult}
                     <Maximize2 size={15} aria-hidden="true" />
                   </PreviewDialogAction>
                 </div>
@@ -479,9 +688,9 @@ export function HomePage() {
         <DialogContent className="w-[min(980px,calc(100vw_-_2rem))] max-w-none gap-5 border-zinc-950/15 bg-[#f7f7f2] p-5 sm:max-w-none">
           <DialogHeader className="border-b border-zinc-950/15 pb-4">
             <DialogDescription className="font-mono text-xs uppercase text-zinc-500">
-              替换 MODEL_NAME 与 MODEL_SLUG 后使用
+              {text.common.promptHint}
             </DialogDescription>
-            <DialogTitle className="text-4xl leading-none">提示词模板</DialogTitle>
+            <DialogTitle className="text-4xl leading-none">{text.common.promptTitle}</DialogTitle>
           </DialogHeader>
           <pre className="max-h-[62vh] overflow-auto border-y border-zinc-950/15 py-4 font-mono text-xs leading-5 whitespace-pre-wrap text-zinc-700">
             {handoffPrompt}
@@ -489,7 +698,7 @@ export function HomePage() {
           <div className="flex justify-end">
             <Button type="button" onClick={copyPrompt}>
               {copiedPrompt ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
-              {copiedPrompt ? "已复制" : "复制提示词"}
+              {copiedPrompt ? text.common.copied : text.common.copyPrompt}
             </Button>
           </div>
         </DialogContent>
@@ -499,9 +708,9 @@ export function HomePage() {
         <DialogContent className="w-[min(920px,calc(100vw_-_2rem))] max-w-none gap-5 border-zinc-950/15 bg-[#f7f7f2] p-5 sm:max-w-none">
           <DialogHeader className="border-b border-zinc-950/15 pb-4">
             <DialogDescription className="font-mono text-xs text-zinc-500">
-              单个 Skill 来源
+              {text.common.skillSource}
             </DialogDescription>
-            <DialogTitle className="text-4xl leading-none">Skills 汇总</DialogTitle>
+            <DialogTitle className="text-4xl leading-none">{text.common.skillsSummary}</DialogTitle>
           </DialogHeader>
           <div className="max-h-[64vh] overflow-auto border-b border-zinc-950/15">
             {skills.map((skill, index) => (
@@ -519,9 +728,11 @@ export function HomePage() {
                   ) : null}
                 </div>
                 <div className="grid content-start gap-2">
-                  <p className="text-sm leading-6 text-zinc-700">{skill.summary}</p>
+                  <p className="text-sm leading-6 text-zinc-700">
+                    {locale === "en-US" ? skill.summaryEn ?? skill.summary : skill.summary}
+                  </p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs">
-                    {skill.officialUrl ? <SmallSourceLink href={skill.officialUrl} label="官网" /> : null}
+                    {skill.officialUrl ? <SmallSourceLink href={skill.officialUrl} label={text.common.official} /> : null}
                     {skill.githubUrl ? <SmallSourceLink href={skill.githubUrl} label="GitHub" /> : null}
                   </div>
                 </div>

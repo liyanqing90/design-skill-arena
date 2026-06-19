@@ -38,6 +38,12 @@ interface ActivityEntry {
   label: string
 }
 
+interface Ripple {
+  id: string
+  x: number
+  y: number
+}
+
 const CONCEPTS: Concept[] = [
   { id: "A", name: "脉冲", headline: "每一次点击都激起一圈涟漪", motion: "pulse", accent: "from-violet-500 to-fuchsia-500", reach: 1310, ctr: 5.0, conversion: 3.3 },
   { id: "B", name: "滑入", headline: "内容像潮水一样涌进来", motion: "slide", accent: "from-sky-500 to-cyan-500", reach: 1150, ctr: 5.4, conversion: 3.7 },
@@ -67,7 +73,7 @@ export function MotionBitsShowcase({ item }: { item: ShowcaseItem }) {
   const [generateState, setGenerateState] = useState<AsyncState>("idle")
   const [saveState, setSaveState] = useState<AsyncState>("idle")
   const [exportState, setExportState] = useState<AsyncState>("idle")
-  const [ripples, setRipples] = useState<number[]>([])
+  const [ripples, setRipples] = useState<Ripple[]>([])
 
   const concept = useMemo(() => CONCEPTS.find((c) => c.id === conceptId) ?? CONCEPTS[0], [conceptId])
 
@@ -99,10 +105,17 @@ export function MotionBitsShowcase({ item }: { item: ShowcaseItem }) {
     }, 1000)
   }, [log])
 
-  function addRipple() {
-    const id = Date.now()
-    setRipples((prev) => [...prev, id])
-    window.setTimeout(() => setRipples((prev) => prev.filter((r) => r !== id)), 900)
+  function addRipple(event: React.MouseEvent<HTMLButtonElement>) {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const x = event.detail === 0 ? rect.width / 2 : event.clientX - rect.left
+    const y = event.detail === 0 ? rect.height / 2 : event.clientY - rect.top
+    setRipples((prev) => [
+      ...prev,
+      { id, x, y },
+    ])
+    log("触发涟漪")
+    window.setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 900)
   }
 
   return (
@@ -180,7 +193,15 @@ export function MotionBitsShowcase({ item }: { item: ShowcaseItem }) {
                 >
                   <span className="relative z-10">点击触发涟漪</span>
                   {ripples.map((r) => (
-                    <span key={r} className="pointer-events-none absolute inset-0 m-auto size-12 rounded-full bg-white/40" style={{ animation: "mb-ripple .9s ease-out forwards" }} />
+                    <span
+                      key={r.id}
+                      className="pointer-events-none absolute size-12 rounded-full bg-white/40"
+                      style={{
+                        left: r.x - 24,
+                        top: r.y - 24,
+                        animation: "mb-ripple .9s ease-out forwards",
+                      }}
+                    />
                   ))}
                 </button>
                 <div className="mt-4 text-xs text-white/40">{audience} · {tone} · {style}</div>

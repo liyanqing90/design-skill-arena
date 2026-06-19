@@ -24,6 +24,7 @@ export type SkillRecord = {
   type: SkillSourceType
   status: "installed" | "bundled" | "external" | "not-installed"
   summary: string
+  summaryEn?: string
   localPath?: string
   officialUrl?: string
   githubUrl?: string

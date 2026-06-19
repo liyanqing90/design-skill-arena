@@ -8,6 +8,8 @@ export const skills: SkillRecord[] = [
     status: "bundled",
     summary:
       "面向新前端应用的标准构建流程，强调先做完整视觉概念，再实现并用浏览器验证。",
+    summaryEn:
+      "A standard frontend app-building workflow that starts from a complete visual concept, then implements and verifies it in a browser.",
     localPath:
       "/Users/tangyuan/.codex/plugins/cache/openai-curated-remote/build-web-apps/0.1.2/skills/frontend-app-builder/SKILL.md",
     officialUrl: "https://developers.openai.com/codex/skills",
@@ -27,6 +29,8 @@ export const skills: SkillRecord[] = [
     status: "installed",
     summary:
       "强调视觉表现、构图、克制动效和去模板化表达，用于生成更有视觉区分度的页面。",
+    summaryEn:
+      "A visual frontend skill focused on stronger art direction, composition, restrained motion, and less template-like output.",
     localPath: "/Users/tangyuan/.codex/skills/frontend-skill/SKILL.md",
     officialUrl:
       "https://developers.openai.com/blog/designing-delightful-frontends-with-gpt-5-4",
@@ -41,6 +45,8 @@ export const skills: SkillRecord[] = [
     status: "installed",
     summary:
       "强调独特视觉主张、字体和布局决策，要求针对题材做有理由的设计风险。",
+    summaryEn:
+      "A design skill for distinctive visual positions, typography, and layout decisions grounded in the page subject.",
     localPath: "/Users/tangyuan/.codex/skills/frontend-design/SKILL.md",
     officialUrl: "https://github.com/anthropics/skills",
     githubUrl:
@@ -61,6 +67,8 @@ export const skills: SkillRecord[] = [
     status: "installed",
     summary:
       "高审美 UI 打磨、信息架构、可访问性、动效、响应式和 polish 检查流程。",
+    summaryEn:
+      "A high-taste UI polish workflow covering information architecture, accessibility, motion, responsive behavior, and final detail checks.",
     localPath: "/Users/tangyuan/.codex/skills/impeccable/SKILL.md",
     officialUrl: "https://impeccable.style/",
     githubUrl: "https://github.com/pbakaus/impeccable",
@@ -76,6 +84,8 @@ export const skills: SkillRecord[] = [
     status: "installed",
     summary:
       "用于复杂 HTML artifact，一次性产出多组件、可交互的前端作品。",
+    summaryEn:
+      "A builder for elaborate single-page HTML artifacts with multiple components and real interaction.",
     localPath: "/Users/tangyuan/.agents/skills/artifacts-builder/SKILL.md",
     officialUrl: "https://github.com/anthropics/skills",
     githubUrl:
@@ -91,6 +101,8 @@ export const skills: SkillRecord[] = [
     status: "installed",
     summary:
       "覆盖可访问性、触控、性能、布局、响应式、字体、色彩、动画和图表的 UX 参考库。",
+    summaryEn:
+      "A UX reference library covering accessibility, touch targets, performance, layout, responsiveness, typography, color, motion, and charts.",
     localPath: "/Users/tangyuan/.codex/skills/ui-ux-pro-max/SKILL.md",
     officialUrl: "https://ui-ux-pro-max-skill.nextlevelbuilder.io/",
     githubUrl: "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
@@ -108,6 +120,8 @@ export const skills: SkillRecord[] = [
     status: "bundled",
     summary:
       "管理 shadcn/ui 项目、组件安装、组合模式、主题和工程一致性。",
+    summaryEn:
+      "Guidance for shadcn/ui projects, component installation, composition patterns, theming, and implementation consistency.",
     localPath:
       "/Users/tangyuan/.codex/plugins/cache/openai-curated-remote/build-web-apps/0.1.2/skills/shadcn-best-practices/SKILL.md",
     officialUrl: "https://ui.shadcn.com/",
@@ -126,6 +140,8 @@ export const skills: SkillRecord[] = [
     status: "external",
     summary:
       "开源 React 动效组件集合，用于记录微交互和动态视觉相关资源。",
+    summaryEn:
+      "An open-source collection of animated React components used as a reference for micro-interactions and motion-driven UI.",
     officialUrl: "https://reactbits.dev/",
     githubUrl: "https://github.com/DavidHDev/react-bits",
     installCommands: ["Use component snippets from reactbits.dev as needed"],
@@ -139,6 +155,8 @@ export const skills: SkillRecord[] = [
     status: "installed",
     summary:
       "反 AI 味的前端设计 skill，强调读懂 brief、约束默认审美和减少模板化痕迹。",
+    summaryEn:
+      "An anti-generic frontend design skill that emphasizes reading the brief, constraining default AI aesthetics, and reducing templated output.",
     localPath: "/Users/tangyuan/.codex/skills/taste-skill/SKILL.md",
     officialUrl: "https://www.tasteskill.dev/",
     githubUrl: "https://github.com/Leonxlnx/taste-skill",
@@ -153,6 +171,8 @@ export const skills: SkillRecord[] = [
     status: "external",
     summary:
       "Vercel Labs 的 Web interface guidelines，用于审计键盘、焦点、可访问性和界面细节。",
+    summaryEn:
+      "Vercel Labs' web interface guidelines, used as a reference for keyboard behavior, focus, accessibility, and interaction details.",
     officialUrl: "https://vercel.com/design/guidelines",
     githubUrl: "https://github.com/vercel-labs/web-interface-guidelines",
     installCommands: ["curl -fsSL https://vercel.com/design/guidelines/install | bash"],

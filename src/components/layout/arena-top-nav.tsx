@@ -11,6 +11,12 @@ type ArenaTopNavProps = {
   onPromptOpen?: () => void
   onSkillsOpen?: () => void
   showGenerationMeta?: boolean
+  labels?: {
+    siteName: string
+    generatedBy: string
+    prompt: string
+    skillsSummary: string
+  }
 }
 
 export function ArenaTopNav({
@@ -19,26 +25,42 @@ export function ArenaTopNav({
   onPromptOpen,
   onSkillsOpen,
   showGenerationMeta = false,
+  labels,
 }: ArenaTopNavProps) {
   const pathname = usePathname()
   const showActions = showGenerationMeta || Boolean(onLocaleChange) || Boolean(onSkillsOpen)
+  const navLabels =
+    labels ??
+    (locale === "en-US"
+      ? {
+          siteName: "Design Skill Arena",
+          generatedBy: "Homepage generated with GPT-5.5",
+          prompt: "View prompt",
+          skillsSummary: "Skills summary",
+        }
+      : {
+          siteName: "设计技能竞技场",
+          generatedBy: "本页面由 GPT-5.5 生成",
+          prompt: "查看提示词",
+          skillsSummary: "Skills 汇总",
+        })
 
   return (
-    <div className="arena-enter flex min-h-11 flex-col gap-3 border-b border-zinc-950/15 pb-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="arena-enter flex min-h-11 flex-col justify-center gap-3 border-b border-zinc-950/15 pb-4 sm:flex-row sm:items-center sm:justify-between">
       <Link
         href="/"
-        className="font-mono text-xs uppercase text-zinc-500 transition hover:text-zinc-950"
+        className="flex min-h-11 items-center font-mono text-xs uppercase text-zinc-500 transition hover:text-zinc-950"
       >
-        Design Skill Arena
+        {navLabels.siteName}
       </Link>
       {showActions ? (
         <nav
           aria-label="Primary"
-          className="flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-xs text-zinc-500"
+          className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-2 font-mono text-xs text-zinc-500"
         >
           {showGenerationMeta ? (
             <>
-              <span>本页面由 GPT-5.5 生成</span>
+              <span>{navLabels.generatedBy}</span>
               <span aria-hidden="true">/</span>
               <button
                 type="button"
@@ -46,7 +68,7 @@ export function ArenaTopNav({
                 className="min-h-11 text-zinc-950 underline decoration-zinc-950/25 underline-offset-4 transition hover:decoration-zinc-950 disabled:pointer-events-none disabled:text-zinc-400"
                 disabled={!onPromptOpen}
               >
-                查看提示词
+                {navLabels.prompt}
               </button>
             </>
           ) : null}
@@ -63,7 +85,7 @@ export function ArenaTopNav({
                     : "text-zinc-950 underline decoration-zinc-950/25 underline-offset-4 hover:decoration-zinc-950"
                 }`}
               >
-                Skills 汇总
+                {navLabels.skillsSummary}
               </button>
             </>
           ) : null}
