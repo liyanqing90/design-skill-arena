@@ -1,8 +1,8 @@
 import type { ShowcaseItem } from "@/types/showcase"
 
 const screenshotFor = (id: string) => ({
-  desktop: `/model-screenshots/kimi-2.7-code/${id}/desktop.png`,
-  mobile: `/model-screenshots/kimi-2.7-code/${id}/mobile.png`,
+  desktop: `/model-screenshots/kimi-2.7-code/${id}/desktop.webp`,
+  mobile: `/model-screenshots/kimi-2.7-code/${id}/mobile.webp`,
 })
 
 export const modelShowcases: ShowcaseItem[] = [

@@ -306,8 +306,8 @@ const models = [
 ] as const
 
 const modelScreenshots = (modelSlug: string, showcaseId: string) => ({
-  desktop: `/covers/codex/${modelSlug}/${showcaseId}.png`,
-  mobile: `/covers/codex/${modelSlug}/${showcaseId}.png`,
+  desktop: `/covers/codex/${modelSlug}/${showcaseId}.webp`,
+  mobile: `/covers/codex/${modelSlug}/${showcaseId}.webp`,
 })
 
 const generatedShowcases: ShowcaseItem[] = models.flatMap(({ model, provider, slug }) =>

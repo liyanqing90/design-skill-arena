@@ -41,9 +41,9 @@ Screenshots should come from real rendered pages.
 Default asset paths:
 
 ```text
-covers/codex/{modelSlug}/{showcaseId}.png
-model-screenshots/{modelSlug}/{showcaseId}/desktop.png
-model-screenshots/{modelSlug}/{showcaseId}/mobile.png
+covers/codex/{modelSlug}/{showcaseId}.webp
+model-screenshots/{modelSlug}/{showcaseId}/desktop.webp
+model-screenshots/{modelSlug}/{showcaseId}/mobile.webp
 ```
 
 For production, maintainers may upload the same paths to R2 and set:

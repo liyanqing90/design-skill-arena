@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { existsSync } from "node:fs"
+import path from "node:path"
 
 import { showcases } from "@/data/showcases"
 
@@ -20,5 +22,12 @@ describe("showcases", () => {
     const ids = showcases.map((item) => item.id)
 
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it("points gallery covers to existing compressed images", () => {
+    showcases.forEach((item) => {
+      expect(item.screenshots.desktop.endsWith(".webp")).toBe(true)
+      expect(existsSync(path.join(process.cwd(), "public", item.screenshots.desktop))).toBe(true)
+    })
   })
 })

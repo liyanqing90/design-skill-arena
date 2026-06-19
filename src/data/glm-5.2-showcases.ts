@@ -4,8 +4,8 @@ export const GLM_MODEL_NAME = "GLM 5.2"
 export const GLM_MODEL_SLUG = "glm-5.2"
 
 const screenshotFor = (id: string) => ({
-  desktop: `/model-screenshots/glm-5.2/${id}/desktop.png`,
-  mobile: `/model-screenshots/glm-5.2/${id}/mobile.png`,
+  desktop: `/model-screenshots/glm-5.2/${id}/desktop.webp`,
+  mobile: `/model-screenshots/glm-5.2/${id}/mobile.webp`,
 })
 
 export const glmShowcases: ShowcaseItem[] = [
