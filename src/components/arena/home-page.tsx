@@ -1,33 +1,23 @@
 "use client"
 
-import { type ReactNode, useEffect, useMemo, useState } from "react"
-import { Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Maximize2 } from "lucide-react"
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { ExternalLink, Heart } from "lucide-react"
 
 import { ShowcaseCard } from "@/components/arena/showcase-card"
 import { ArenaTopNav } from "@/components/layout/arena-top-nav"
-import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 import { skills } from "@/data/skills"
 import { allModels, showcases } from "@/data/showcases"
 import { defaultLocale, messages } from "@/i18n"
 
 const pageSize = 20
+const votedStorageKey = "design-skill-arena:voted"
 type Locale = keyof typeof messages
 type FilterOption = { value: string; label: string }
+type VoteResponse = {
+  counts?: Record<string, number>
+  count?: number
+  voted?: string[] | boolean
+}
 const handoffPrompts: Record<Locale, string> = {
   "zh-CN": `{MODEL_NAME} = 当前模型名称
 {MODEL_SLUG} = 当前模型标识
@@ -438,7 +428,11 @@ export function HomePage() {
   const [promptOpen, setPromptOpen] = useState(false)
   const [skillsOpen, setSkillsOpen] = useState(false)
   const [copiedPrompt, setCopiedPrompt] = useState(false)
-  const [previewScale, setPreviewScale] = useState(0.818)
+  const [voteCounts, setVoteCounts] = useState<Record<string, number>>({})
+  const [loadedVoteIds, setLoadedVoteIds] = useState<Set<string>>(new Set())
+  const [votedIds, setVotedIds] = useState<Set<string>>(new Set())
+  const [votingId, setVotingId] = useState<string | null>(null)
+  const [votesAvailable, setVotesAvailable] = useState(true)
   const text = messages[locale]
   const handoffPrompt = handoffPrompts[locale]
   const combos = useMemo(
@@ -458,6 +452,7 @@ export function HomePage() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
   const pages = Array.from({ length: pageCount }, (_, index) => index + 1)
   const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize)
+  const pageItemIds = pageItems.map((item) => item.id).join(",")
   const selectedItem = selectedIndex === null ? null : filtered[selectedIndex]
 
   useEffect(() => {
@@ -465,13 +460,15 @@ export function HomePage() {
   }, [locale])
 
   useEffect(() => {
-    const updatePreviewScale = () => {
-      setPreviewScale(Math.max(0.24, Math.min(0.818, (window.innerWidth - 32) / 1440)))
-    }
+    const timeout = window.setTimeout(() => {
+      try {
+        setVotedIds(new Set(JSON.parse(localStorage.getItem(votedStorageKey) || "[]")))
+      } catch {
+        localStorage.removeItem(votedStorageKey)
+      }
+    }, 0)
 
-    updatePreviewScale()
-    window.addEventListener("resize", updatePreviewScale)
-    return () => window.removeEventListener("resize", updatePreviewScale)
+    return () => window.clearTimeout(timeout)
   }, [])
 
   function changeModel(nextModel: string) {
@@ -489,8 +486,15 @@ export function HomePage() {
   function moveSelection(offset: number) {
     setSelectedIndex((current) => {
       if (current === null || filtered.length === 0) return current
-      return (current + offset + filtered.length) % filtered.length
+      const next = (current + offset + filtered.length) % filtered.length
+      void loadVotesFor([filtered[next].id])
+      return next
     })
+  }
+
+  function openPreview(index: number) {
+    setSelectedIndex(index)
+    void loadVotesFor([filtered[index].id])
   }
 
   async function copyPrompt() {
@@ -509,6 +513,71 @@ export function HomePage() {
     }
     setCopiedPrompt(true)
     window.setTimeout(() => setCopiedPrompt(false), 1400)
+  }
+
+  const loadVotesFor = useCallback(async (itemIds: string[]) => {
+    const ids = itemIds.filter((id) => !loadedVoteIds.has(id)).slice(0, 20)
+    if (!votesAvailable || ids.length === 0) return
+
+    try {
+      const response = await fetch(`/api/votes?ids=${encodeURIComponent(ids.join(","))}`)
+      const data = (await response.json()) as VoteResponse & { enabled?: boolean }
+      if (!response.ok) throw new Error("Vote load failed")
+
+      setVoteCounts((current) => {
+        const next = { ...current }
+        ids.forEach((id) => {
+          next[id] = Number(data.counts?.[id] ?? 0)
+        })
+        return next
+      })
+      setLoadedVoteIds((current) => new Set([...current, ...ids]))
+      setVotesAvailable(data.enabled !== false)
+      if (Array.isArray(data.voted)) {
+        const voted = data.voted
+        setVotedIds((current) => {
+          const next = new Set([...current, ...voted])
+          localStorage.setItem(votedStorageKey, JSON.stringify([...next]))
+          return next
+        })
+      }
+    } catch {
+      setVotesAvailable(false)
+    }
+  }, [loadedVoteIds, votesAvailable])
+
+  useEffect(() => {
+    if (pageItemIds) void loadVotesFor(pageItemIds.split(","))
+  }, [loadVotesFor, pageItemIds])
+
+  async function voteFor(itemId: string) {
+    if (!votesAvailable || votedIds.has(itemId) || votingId) return
+
+    setVotingId(itemId)
+    try {
+      const response = await fetch("/api/votes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetId: itemId }),
+      })
+      const data = (await response.json()) as VoteResponse
+      if (!response.ok) throw new Error("Vote failed")
+
+      setVoteCounts((current) => ({
+        ...current,
+        [itemId]: Number(data.count ?? current[itemId] ?? 0),
+      }))
+      setLoadedVoteIds((current) => new Set(current).add(itemId))
+      setVotedIds((current) => {
+        const next = new Set(current).add(itemId)
+        localStorage.setItem(votedStorageKey, JSON.stringify([...next]))
+        return next
+      })
+    } catch {
+      setVotesAvailable(false)
+    } finally {
+      setVotingId(null)
+    }
   }
 
   return (
@@ -568,7 +637,18 @@ export function HomePage() {
               item={item}
               index={index}
               coverAlt={text.gallery.coverAlt.replace("{title}", `${item.model} ${item.title}`)}
-              onOpen={() => setSelectedIndex((page - 1) * pageSize + index)}
+              onOpen={() => openPreview((page - 1) * pageSize + index)}
+              onVote={() => voteFor(item.id)}
+              voteCount={loadedVoteIds.has(item.id) ? voteCounts[item.id] ?? 0 : undefined}
+              voteLabel={
+                votesAvailable
+                  ? votedIds.has(item.id)
+                    ? text.common.liked
+                    : text.common.like
+                  : text.common.likesUnavailable
+              }
+              voted={votedIds.has(item.id)}
+              voting={!votesAvailable || votingId === item.id}
             />
           ))}
           {pageItems.length === 0 ? (
@@ -582,136 +662,135 @@ export function HomePage() {
           <span className="font-mono text-sm tabular-nums text-zinc-500">
             {text.gallery.page.replace("{page}", String(page)).replace("{total}", String(pageCount))}
           </span>
-          <Pagination aria-label={locale === "zh-CN" ? "分页" : "pagination"} className="mx-0 w-auto">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  text={text.gallery.previous}
+          <nav aria-label={locale === "zh-CN" ? "分页" : "pagination"}>
+            <ul className="flex items-center gap-1">
+              <li>
+                <button
+                  type="button"
                   aria-label={text.gallery.previous}
-                  aria-disabled={page === 1}
-                  tabIndex={page === 1 ? -1 : undefined}
-                  className={`h-11! min-w-11! ${page === 1 ? "pointer-events-none opacity-35" : ""}`}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setPage((value) => Math.max(1, value - 1))
-                  }}
-                />
-              </PaginationItem>
+                  disabled={page === 1}
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg px-3 text-sm font-medium transition hover:bg-zinc-950/5 disabled:pointer-events-none disabled:opacity-35"
+                  onClick={() => setPage((value) => Math.max(1, value - 1))}
+                >
+                  <span aria-hidden="true">‹</span>
+                  <span className="hidden sm:block">{text.gallery.previous}</span>
+                </button>
+              </li>
               {pages.map((pageNumber) => (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink
-                    href="#"
-                    isActive={pageNumber === page}
-                    className="size-11!"
-                    aria-label={`${text.gallery.page.replace("{page}", String(pageNumber)).replace("{total}", String(pageCount))}`}
-                    onClick={(event) => {
-                      event.preventDefault()
-                      setPage(pageNumber)
-                    }}
+                <li key={pageNumber}>
+                  <button
+                    type="button"
+                    aria-current={pageNumber === page ? "page" : undefined}
+                    aria-label={text.gallery.page
+                      .replace("{page}", String(pageNumber))
+                      .replace("{total}", String(pageCount))}
+                    className={`inline-flex size-11 items-center justify-center rounded-lg text-sm font-medium transition ${
+                      pageNumber === page
+                        ? "border border-zinc-950/15 bg-white"
+                        : "hover:bg-zinc-950/5"
+                    }`}
+                    onClick={() => setPage(pageNumber)}
                   >
                     {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
+                  </button>
+                </li>
               ))}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  text={text.gallery.next}
+              <li>
+                <button
+                  type="button"
                   aria-label={text.gallery.next}
-                  aria-disabled={page === pageCount}
-                  tabIndex={page === pageCount ? -1 : undefined}
-                  className={`h-11! min-w-11! ${page === pageCount ? "pointer-events-none opacity-35" : ""}`}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setPage((value) => Math.min(pageCount, value + 1))
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                  disabled={page === pageCount}
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg px-3 text-sm font-medium transition hover:bg-zinc-950/5 disabled:pointer-events-none disabled:opacity-35"
+                  onClick={() => setPage((value) => Math.min(pageCount, value + 1))}
+                >
+                  <span className="hidden sm:block">{text.gallery.next}</span>
+                  <span aria-hidden="true">›</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </section>
 
-      <Dialog open={selectedItem !== null} onOpenChange={(open) => !open && setSelectedIndex(null)}>
+      <NativeDialog
+        open={selectedItem !== null}
+        onClose={() => setSelectedIndex(null)}
+        className="w-[min(1180px,calc(100vw_-_1.5rem))] overflow-hidden border border-zinc-950/15 bg-[#f7f7f2] p-0"
+      >
         {selectedItem ? (
-          <DialogContent className="w-[min(1180px,calc(100vw_-_1.5rem))] max-w-none overflow-hidden border-zinc-950/15 bg-[#f7f7f2] p-0 sm:max-w-none">
-            <div className="flex max-h-[calc(100vh-1.5rem)] flex-col">
-              <DialogHeader className="grid gap-4 border-b border-zinc-950/15 p-4 pr-12 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:p-5 sm:pr-14">
-                <div className="min-w-0 pr-2">
-                  <DialogDescription className="font-mono text-xs text-zinc-500">
-                    {selectedItem.numericId} · {selectedItem.model} · {selectedItem.skillChainLabel}
-                  </DialogDescription>
-                  <DialogTitle className="mt-2 text-3xl leading-none tracking-[-0.02em] sm:text-4xl">
-                    {selectedItem.title}
-                  </DialogTitle>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <PreviewDialogAction type="button" onClick={() => moveSelection(-1)}>
-                    <ChevronLeft size={15} aria-hidden="true" />
-                    {text.common.previous}
-                  </PreviewDialogAction>
-                  <PreviewDialogAction type="button" onClick={() => moveSelection(1)}>
-                    {text.common.next}
-                    <ChevronRight size={15} aria-hidden="true" />
-                  </PreviewDialogAction>
-                  <PreviewDialogAction href={selectedItem.demoUrl}>
-                    {text.common.openResult}
-                    <Maximize2 size={15} aria-hidden="true" />
-                  </PreviewDialogAction>
-                </div>
-              </DialogHeader>
-
-              <div
-                className="mx-auto overflow-hidden bg-zinc-100"
-                style={{
-                  width: `${1440 * previewScale}px`,
-                  height: `${900 * previewScale}px`,
-                }}
-              >
-                <iframe
-                  key={selectedItem.id}
-                  src={selectedItem.demoUrl}
-                  title={`${selectedItem.model} ${selectedItem.title}`}
-                  className="h-[900px] w-[1440px] max-w-none origin-top-left border-0 bg-white"
-                  style={{
-                    transform: `scale(${previewScale})`,
-                  }}
-                />
+          <div className="flex max-h-[calc(100vh-1.5rem)] flex-col">
+            <div className="grid gap-4 border-b border-zinc-950/15 p-4 pr-12 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:p-5 sm:pr-14">
+              <div className="min-w-0 pr-2">
+                <p className="font-mono text-xs text-zinc-500">
+                  {selectedItem.numericId} · {selectedItem.model} · {selectedItem.skillChainLabel}
+                </p>
+                <h2 className="mt-2 text-3xl leading-none tracking-[-0.02em] sm:text-4xl">
+                  {selectedItem.title}
+                </h2>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <PreviewDialogAction
+                  type="button"
+                  disabled={!votesAvailable || votedIds.has(selectedItem.id) || votingId === selectedItem.id}
+                  onClick={() => voteFor(selectedItem.id)}
+                >
+                  <Heart size={15} aria-hidden="true" className={votedIds.has(selectedItem.id) ? "fill-current" : ""} />
+                  {voteCounts[selectedItem.id] ?? 0}
+                </PreviewDialogAction>
+                <PreviewDialogAction type="button" onClick={() => moveSelection(-1)}>
+                  <span aria-hidden="true">‹</span>
+                  {text.common.previous}
+                </PreviewDialogAction>
+                <PreviewDialogAction type="button" onClick={() => moveSelection(1)}>
+                  {text.common.next}
+                  <span aria-hidden="true">›</span>
+                </PreviewDialogAction>
+                <PreviewDialogAction href={selectedItem.demoUrl}>
+                  {text.common.openResult}
+                  <span aria-hidden="true">↗</span>
+                </PreviewDialogAction>
               </div>
             </div>
-          </DialogContent>
+            <ScaledPreviewFrame src={selectedItem.demoUrl} title={`${selectedItem.model} ${selectedItem.title}`} />
+          </div>
         ) : null}
-      </Dialog>
+      </NativeDialog>
 
-      <Dialog open={promptOpen} onOpenChange={setPromptOpen}>
-        <DialogContent className="w-[min(980px,calc(100vw_-_2rem))] max-w-none gap-5 border-zinc-950/15 bg-[#f7f7f2] p-5 sm:max-w-none">
-          <DialogHeader className="border-b border-zinc-950/15 pb-4">
-            <DialogDescription className="font-mono text-xs uppercase text-zinc-500">
-              {text.common.promptHint}
-            </DialogDescription>
-            <DialogTitle className="text-4xl leading-none">{text.common.promptTitle}</DialogTitle>
-          </DialogHeader>
+      <NativeDialog
+        open={promptOpen}
+        onClose={() => setPromptOpen(false)}
+        className="w-[min(980px,calc(100vw_-_2rem))] border border-zinc-950/15 bg-[#f7f7f2] p-5"
+      >
+        <div className="grid gap-5">
+          <div className="border-b border-zinc-950/15 pb-4">
+            <p className="font-mono text-xs uppercase text-zinc-500">{text.common.promptHint}</p>
+            <h2 className="mt-2 text-4xl leading-none">{text.common.promptTitle}</h2>
+          </div>
           <pre className="max-h-[62vh] overflow-auto border-y border-zinc-950/15 py-4 font-mono text-xs leading-5 whitespace-pre-wrap text-zinc-700">
             {handoffPrompt}
           </pre>
           <div className="flex justify-end">
-            <Button type="button" onClick={copyPrompt}>
-              {copiedPrompt ? <Check data-icon="inline-start" /> : <Copy data-icon="inline-start" />}
+            <button
+              type="button"
+              onClick={copyPrompt}
+              className="inline-flex min-h-10 items-center rounded-lg bg-zinc-950 px-3 text-sm font-medium text-white transition hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-zinc-950/15"
+            >
               {copiedPrompt ? text.common.copied : text.common.copyPrompt}
-            </Button>
+            </button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </NativeDialog>
 
-      <Dialog open={skillsOpen} onOpenChange={setSkillsOpen}>
-        <DialogContent className="w-[min(920px,calc(100vw_-_2rem))] max-w-none gap-5 border-zinc-950/15 bg-[#f7f7f2] p-5 sm:max-w-none">
-          <DialogHeader className="border-b border-zinc-950/15 pb-4">
-            <DialogDescription className="font-mono text-xs text-zinc-500">
-              {text.common.skillSource}
-            </DialogDescription>
-            <DialogTitle className="text-4xl leading-none">{text.common.skillsSummary}</DialogTitle>
-          </DialogHeader>
+      <NativeDialog
+        open={skillsOpen}
+        onClose={() => setSkillsOpen(false)}
+        className="w-[min(920px,calc(100vw_-_2rem))] border border-zinc-950/15 bg-[#f7f7f2] p-5"
+      >
+        <div className="grid gap-5">
+          <div className="border-b border-zinc-950/15 pb-4">
+            <p className="font-mono text-xs text-zinc-500">{text.common.skillSource}</p>
+            <h2 className="mt-2 text-4xl leading-none">{text.common.skillsSummary}</h2>
+          </div>
           <div className="max-h-[64vh] overflow-auto border-b border-zinc-950/15">
             {skills.map((skill, index) => (
               <div
@@ -739,9 +818,85 @@ export function HomePage() {
               </div>
             ))}
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </NativeDialog>
     </main>
+  )
+}
+
+function NativeDialog({
+  children,
+  className,
+  onClose,
+  open,
+}: {
+  children: ReactNode
+  className: string
+  onClose: () => void
+  open: boolean
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (open && !dialog.open) dialog.showModal()
+    if (!open && dialog.open) dialog.close()
+  }, [open])
+
+  return (
+    <dialog
+      ref={dialogRef}
+      onCancel={(event) => {
+        event.preventDefault()
+        onClose()
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+      className={`m-auto max-h-[calc(100vh-1rem)] max-w-[calc(100vw-1rem)] rounded-xl text-zinc-950 shadow-[0_24px_100px_rgba(24,24,27,0.28)] backdrop:bg-black/10 backdrop:backdrop-blur-xs ${className}`}
+    >
+      {children}
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute top-2 right-2 inline-flex size-9 items-center justify-center rounded-lg text-xl leading-none text-zinc-500 transition hover:bg-zinc-950/5 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-zinc-950/15"
+      >
+        ×
+      </button>
+    </dialog>
+  )
+}
+
+function ScaledPreviewFrame({ src, title }: { src: string; title: string }) {
+  const [scale, setScale] = useState(0.818)
+
+  useEffect(() => {
+    const update = () => setScale(Math.max(0.24, Math.min(0.818, (window.innerWidth - 32) / 1440)))
+
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
+
+  return (
+    <div
+      className="mx-auto overflow-hidden bg-zinc-100"
+      style={{
+        width: `${1440 * scale}px`,
+        height: `${900 * scale}px`,
+      }}
+    >
+      <iframe
+        key={src}
+        src={src}
+        title={title}
+        className="h-[900px] w-[1440px] max-w-none origin-top-left border-0 bg-white"
+        style={{ transform: `scale(${scale})` }}
+      />
+    </div>
   )
 }
 
@@ -771,11 +926,12 @@ type PreviewDialogActionProps =
       href?: never
       onClick: () => void
       type: "button"
+      disabled?: boolean
     }
 
 function PreviewDialogAction(props: PreviewDialogActionProps) {
   const className =
-    "inline-flex min-h-10 items-center gap-2 border border-zinc-950/15 px-3 font-mono text-xs text-zinc-700 transition hover:border-zinc-950 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-zinc-950/15"
+    "inline-flex min-h-10 items-center gap-2 border border-zinc-950/15 px-3 font-mono text-xs text-zinc-700 transition hover:border-zinc-950 hover:text-zinc-950 disabled:cursor-default disabled:opacity-45 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-zinc-950/15"
 
   if (props.href) {
     return (
@@ -786,7 +942,12 @@ function PreviewDialogAction(props: PreviewDialogActionProps) {
   }
 
   return (
-    <button type={props.type} onClick={props.onClick} className={className}>
+    <button
+      type={props.type}
+      onClick={props.onClick}
+      disabled={"disabled" in props ? props.disabled : undefined}
+      className={className}
+    >
       {props.children}
     </button>
   )

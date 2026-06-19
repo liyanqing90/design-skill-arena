@@ -1,5 +1,13 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "design-skill-arena",
-  "pages_build_output_dir": "out"
+  "pages_build_output_dir": "out",
+  "d1_databases": [
+    {
+      "binding": "VOTES_DB",
+      "database_name": "design-skill-arena-votes",
+      "database_id": "bbb75b19-a30f-4e4d-9b5f-7895341c2465",
+      "migrations_dir": "migrations"
+    }
+  ]
 }

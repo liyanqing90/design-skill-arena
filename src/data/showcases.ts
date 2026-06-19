@@ -1,4 +1,5 @@
 import type { ShowcaseItem } from "@/types/showcase"
+import { CLAUDE_MODEL_SLUG, claudeShowcases } from "@/data/claude-opus-4.8-showcases"
 import { GLM_MODEL_SLUG, glmShowcases } from "@/data/glm-5.2-showcases"
 import { coverScreenshots } from "@/data/showcase-assets"
 
@@ -323,6 +324,11 @@ export const showcases: ShowcaseItem[] = [
   ...glmShowcases.map((item) => ({
     ...item,
     id: `${GLM_MODEL_SLUG}-${item.id}`,
+    sourceUrl: item.id,
+  })),
+  ...claudeShowcases.map((item) => ({
+    ...item,
+    id: `${CLAUDE_MODEL_SLUG}-${item.id}`,
     sourceUrl: item.id,
   })),
 ]

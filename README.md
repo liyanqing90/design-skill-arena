@@ -29,7 +29,8 @@ pnpm build:static
 pnpm preview:static
 ```
 
-The static output is written to `out/`.
+The static output is written to `out/`. This command keeps screenshots on local
+`public/` paths unless `NEXT_PUBLIC_ASSET_BASE_URL` is set.
 
 ## Cloudflare Pages
 
@@ -39,6 +40,12 @@ The project is configured for Cloudflare Pages direct upload with `wrangler.json
 pnpm deploy:cloudflare
 ```
 
+This command intentionally runs `pnpm build:cloudflare` first. Do not replace it
+with `pnpm build:static` for production, otherwise screenshots will fall back to
+project-local paths instead of R2. The deploy command also pins `--branch main`
+so direct uploads update the production Pages deployment instead of a preview
+deployment from the current local branch.
+
 Recommended production domains:
 
 - Site: `https://arena.xflux.cn`
@@ -47,9 +54,23 @@ Recommended production domains:
 Cloudflare Pages build settings:
 
 ```text
-Build command: pnpm build:static
+Build command: pnpm build:cloudflare
 Output directory: out
+Environment variable: NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 ```
+
+## Likes
+
+Likes are an optional Cloudflare Pages Functions enhancement. The gallery does not call the API on initial page load; counts load only when a card is focused, hovered, opened, or liked.
+
+Production uses D1:
+
+```bash
+pnpm db:migrate:remote
+pnpm dlx wrangler@latest pages secret put VOTE_HASH_SALT --project-name design-skill-arena
+```
+
+The vote table stores only `target_id`, an anonymous salted visitor hash, and a timestamp. If the API or D1 binding is unavailable, the static gallery still works.
 
 ## Asset Hosting
 
@@ -64,6 +85,14 @@ The frontend prefixes existing public asset paths. If assets are moved to R2, ke
 ```text
 model-screenshots/{modelSlug}/{showcaseId}/desktop.webp
 ```
+
+For an open-source fork, R2 is optional:
+
+1. Keep assets in `public/` and run `pnpm build:static`.
+2. Or create an R2 bucket, upload the same path structure, attach a public custom
+   domain, and set `NEXT_PUBLIC_ASSET_BASE_URL=https://your-assets.example.com`.
+3. On Cloudflare Pages, use `pnpm build:cloudflare` and set the same environment
+   variable in project settings.
 
 Contributors should not commit generated screenshots for new models unless requested. The maintainer should capture real pages, compress the images to WebP, and upload them to R2.
 
