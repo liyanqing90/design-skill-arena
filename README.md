@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Design Skill Arena
 
-## Getting Started
+Design Skill Arena is a static gallery for comparing how different AI models implement the same Muse AI Campaign Studio brief with different frontend design skill chains.
 
-First, run the development server:
+It is a showcase, not a benchmark. The site avoids scores and rankings; each card opens a real standalone page generated for one model and one skill chain.
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/base UI primitives
+- Static export for Cloudflare Pages
+- Optional Cloudflare R2 asset hosting
+
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Static Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm build:static
+pnpm preview:static
+```
 
-## Learn More
+The static output is written to `out/`.
 
-To learn more about Next.js, take a look at the following resources:
+## Cloudflare Pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The project is configured for Cloudflare Pages direct upload with `wrangler.jsonc`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm deploy:cloudflare
+```
 
-## Deploy on Vercel
+Recommended production domains:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Site: `https://arena.xflux.cn`
+- Assets: `https://arena-assets.xflux.cn`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cloudflare Pages build settings:
+
+```text
+Build command: pnpm build:static
+Output directory: out
+```
+
+## Asset Hosting
+
+By default, screenshots load from local `public/` paths. For R2, set:
+
+```bash
+NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
+```
+
+The frontend prefixes existing public asset paths. If assets are moved to R2, keep the same path shape:
+
+```text
+covers/codex/{modelSlug}/{showcaseId}.png
+model-screenshots/{modelSlug}/{showcaseId}/desktop.png
+model-screenshots/{modelSlug}/{showcaseId}/mobile.png
+```
+
+Contributors should not commit generated screenshots for new models unless requested. The maintainer should capture real pages, compress the images, and upload them to R2. WebP is preferred for new captures, but the path in the model data should match the uploaded object.
+
+## Adding a Model
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a PR.
+
+Add a model as an isolated implementation:
+
+```text
+src/components/model-showcases/{modelSlug}/
+```
+
+Each model should provide the same 18 showcase IDs:
+
+```text
+standard-builder
+visual-frontend
+design-logic
+impeccable-full-flow
+artifact-builder
+ux-pro-reference
+component-system
+motion-bits
+standard-taste
+standard-impeccable
+visual-taste
+visual-impeccable
+design-ux-pro
+design-impeccable
+balanced-chain
+visual-premium-chain
+product-polish-chain
+max-quality-chain
+```
+
+Each page must be independently openable under:
+
+```text
+/model-showcase/{modelSlug}/{showcaseId}
+```
+
+## Checks
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build:static
+```
