@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { assetUrl } from "@/lib/assets"
+import packageJson from "../package.json"
 
 describe("assetUrl", () => {
   it("keeps local assets local without a base url", () => {
@@ -19,5 +20,13 @@ describe("assetUrl", () => {
     expect(assetUrl("https://cdn.example.com/a.webp", "https://arena-assets.xflux.cn")).toBe(
       "https://cdn.example.com/a.webp"
     )
+  })
+
+  it("keeps Cloudflare deployments on the R2 asset build path", () => {
+    expect(packageJson.scripts["build:cloudflare"]).toContain("NEXT_PUBLIC_ASSET_BASE_URL")
+    expect(packageJson.scripts["build:cloudflare"]).toContain("arena-assets.xflux.cn")
+    expect(packageJson.scripts["deploy:cloudflare"]).toContain("pnpm build:cloudflare")
+    expect(packageJson.scripts["deploy:cloudflare"]).toContain("--branch main")
+    expect(packageJson.scripts["deploy:cloudflare"]).not.toContain("pnpm build:static")
   })
 })
