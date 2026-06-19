@@ -321,6 +321,9 @@ export function HomePage() {
             <h1 className="max-w-5xl text-6xl font-semibold leading-[0.9] sm:text-8xl lg:text-9xl 2xl:text-[9rem]">
               {text.home.title}
             </h1>
+            <p className="max-w-3xl text-sm leading-6 text-zinc-500 sm:text-base">
+              {text.home.subtitle}
+            </p>
           </div>
 
           <div className="relative z-20 grid border-y border-zinc-950/15 sm:grid-cols-2 lg:w-[520px] lg:justify-self-end">

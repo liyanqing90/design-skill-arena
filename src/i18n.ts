@@ -15,6 +15,7 @@ export const messages = {
     },
     home: {
       title: "Design Skill Arena",
+      subtitle: "AI 前端设计 Skill 展示场。用同一个 Muse 活动工作台需求，对照 GPT-5.5、Qwen、Kimi、GLM 等模型生成的独立页面。",
       kicker: "GPT-5.5 中文展示集",
       intro: "同一个 Muse 产品页面题材，展示 18 条前端设计 skill chain 的渲染效果。",
       galleryTitle: "渲染效果墙",
@@ -63,6 +64,7 @@ export const messages = {
     },
     home: {
       title: "Design Skill Arena",
+      subtitle: "A bilingual arena for AI frontend design skills, comparing standalone Muse campaign-studio pages from GPT-5.5, Qwen, Kimi, GLM, and more.",
       kicker: "GPT-5.5 gallery",
       intro: "One Muse product surface rendered through 18 frontend design skill chains.",
       galleryTitle: "Gallery",
