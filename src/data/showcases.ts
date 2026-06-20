@@ -305,6 +305,7 @@ const models = [
   { model: "GPT-5.5", provider: "OpenAI", slug: "gpt-55" },
   { model: "Qwen 3.7 Max", provider: "Alibaba Cloud", slug: "qwen-37-max" },
   { model: "Kimi 2.7 Code", provider: "Moonshot", slug: "kimi-2.7-code" },
+  { model: "Gemini 3.1 Pro", provider: "Google", slug: "gemini-3.1-pro" },
 ] as const
 
 const generatedShowcases: ShowcaseItem[] = models.flatMap(({ model, provider, slug }) =>

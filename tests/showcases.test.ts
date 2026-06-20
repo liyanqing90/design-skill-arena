@@ -6,7 +6,7 @@ import { skills } from "@/data/skills"
 import { showcases } from "@/data/showcases"
 import { messages } from "@/i18n"
 
-const expectedModels = ["GPT-5.5", "Qwen 3.7 Max", "Kimi 2.7 Code", "GLM 5.2", "Claude Opus 4.8"]
+const expectedModels = ["GPT-5.5", "Qwen 3.7 Max", "Kimi 2.7 Code", "Gemini 3.1 Pro", "GLM 5.2", "Claude Opus 4.8"]
 
 describe("showcases", () => {
   it("keeps all model showcase collections", () => {
@@ -28,8 +28,11 @@ describe("showcases", () => {
 
   it("points gallery covers to existing compressed images", () => {
     showcases.forEach((item) => {
-      expect(item.screenshots.desktop.endsWith(".webp")).toBe(true)
-      expect(existsSync(path.join(process.cwd(), "public", item.screenshots.desktop))).toBe(true)
+      const [screenshotPath, query] = item.screenshots.desktop.split("?")
+
+      expect(screenshotPath.endsWith(".webp")).toBe(true)
+      expect(query).toMatch(/^v=[0-9a-f]{12}$/)
+      expect(existsSync(path.join(process.cwd(), "public", screenshotPath.replace(/^\/+/, "")))).toBe(true)
     })
   })
 
