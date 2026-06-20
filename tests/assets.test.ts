@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { createHash } from "node:crypto"
+import { readFileSync } from "node:fs"
 
 import { assetUrl } from "@/lib/assets"
+import { coverScreenshots } from "@/data/showcase-assets"
+import { screenshotAssetVersions } from "@/data/screenshot-asset-versions"
 import packageJson from "../package.json"
 
 describe("assetUrl", () => {
@@ -28,5 +32,16 @@ describe("assetUrl", () => {
     expect(packageJson.scripts["deploy:cloudflare"]).toContain("pnpm build:cloudflare")
     expect(packageJson.scripts["deploy:cloudflare"]).toContain("--branch main")
     expect(packageJson.scripts["deploy:cloudflare"]).not.toContain("pnpm build:static")
+  })
+
+  it("versions screenshot URLs from the file content hash", () => {
+    const screenshotPath = "/model-screenshots/qwen-37-max/standard-builder/desktop.webp"
+    const hash = createHash("sha256")
+      .update(readFileSync(`public${screenshotPath}`))
+      .digest("hex")
+      .slice(0, 12)
+
+    expect(screenshotAssetVersions[screenshotPath]).toBe(hash)
+    expect(coverScreenshots("qwen-37-max", "standard-builder").desktop).toBe(`${screenshotPath}?v=${hash}`)
   })
 })

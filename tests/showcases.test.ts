@@ -28,8 +28,11 @@ describe("showcases", () => {
 
   it("points gallery covers to existing compressed images", () => {
     showcases.forEach((item) => {
-      expect(item.screenshots.desktop.endsWith(".webp")).toBe(true)
-      expect(existsSync(path.join(process.cwd(), "public", item.screenshots.desktop))).toBe(true)
+      const [screenshotPath, query] = item.screenshots.desktop.split("?")
+
+      expect(screenshotPath.endsWith(".webp")).toBe(true)
+      expect(query).toMatch(/^v=[0-9a-f]{12}$/)
+      expect(existsSync(path.join(process.cwd(), "public", screenshotPath.replace(/^\/+/, "")))).toBe(true)
     })
   })
 
