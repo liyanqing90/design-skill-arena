@@ -590,6 +590,7 @@ export function HomePage() {
           onSkillsOpen={() => setSkillsOpen(true)}
           labels={{
             siteName: text.common.siteName,
+            generatedBy: text.common.generatedBy,
             prompt: text.common.prompt,
             skillsSummary: text.common.skillsSummary,
           }}
@@ -659,7 +660,7 @@ export function HomePage() {
 
         <div className="arena-enter flex min-h-16 flex-col items-center justify-center gap-3 border-t border-zinc-950/15 py-4 sm:flex-row sm:justify-between">
           <span className="font-mono text-sm tabular-nums text-zinc-500">
-            {text.common.generatedBy}
+            {text.gallery.page.replace("{page}", String(page)).replace("{total}", String(pageCount))}
           </span>
           <nav aria-label={locale === "zh-CN" ? "分页" : "pagination"}>
             <ul className="flex items-center gap-1">
