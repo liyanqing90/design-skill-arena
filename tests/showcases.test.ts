@@ -6,7 +6,7 @@ import { skills } from "@/data/skills"
 import { showcases } from "@/data/showcases"
 import { messages } from "@/i18n"
 
-const expectedModels = ["GPT-5.5", "Qwen 3.7 Max", "Kimi 2.7 Code", "GLM 5.2", "Claude Opus 4.8"]
+const expectedModels = ["GPT-5.5", "Qwen 3.7 Max", "Kimi 2.7 Code", "Gemini 3.1 Pro", "GLM 5.2", "Claude Opus 4.8"]
 
 describe("showcases", () => {
   it("keeps all model showcase collections", () => {

@@ -18,6 +18,15 @@ import {
   showcaseTitles as qwenShowcaseTitles,
 } from "@/components/model-showcases/qwen-37-max"
 
+import {
+  MODEL_NAME as GEMINI_MODEL_NAME,
+  MODEL_SLUG as GEMINI_MODEL_SLUG,
+  isGemini31ProShowcaseId,
+  showcaseComponents as geminiShowcaseComponents,
+  showcaseIds as geminiShowcaseIds,
+  showcaseTitles as geminiShowcaseTitles,
+} from "@/components/model-showcases/gemini-3.1-pro"
+
 export const dynamicParams = false
 
 export function generateStaticParams() {
@@ -28,6 +37,10 @@ export function generateStaticParams() {
     })),
     ...qwenShowcaseIds.map((showcaseId) => ({
       modelSlug: QWEN_MODEL_SLUG,
+      showcaseId,
+    })),
+    ...geminiShowcaseIds.map((showcaseId) => ({
+      modelSlug: GEMINI_MODEL_SLUG,
       showcaseId,
     })),
   ]
@@ -52,6 +65,12 @@ export async function generateMetadata({
     }
   }
 
+  if (modelSlug === GEMINI_MODEL_SLUG && isGemini31ProShowcaseId(showcaseId)) {
+    return {
+      title: `${GEMINI_MODEL_NAME} ${geminiShowcaseTitles[showcaseId]} | Muse Showcase`,
+    }
+  }
+
   return {
     title: "Muse Showcase",
   }
@@ -71,6 +90,11 @@ export default async function Page({
 
   if (modelSlug === QWEN_MODEL_SLUG && isQwenShowcaseId(showcaseId)) {
     const Showcase = qwenShowcaseComponents[showcaseId]
+    return <Showcase />
+  }
+
+  if (modelSlug === GEMINI_MODEL_SLUG && isGemini31ProShowcaseId(showcaseId)) {
+    const Showcase = geminiShowcaseComponents[showcaseId]
     return <Showcase />
   }
 
