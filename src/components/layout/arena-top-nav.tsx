@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
+const projectUrl = "https://github.com/liyanqing90/design-skill-arena"
+
 type Locale = "zh-CN" | "en-US"
 
 type ArenaTopNavProps = {
@@ -13,7 +15,6 @@ type ArenaTopNavProps = {
   showGenerationMeta?: boolean
   labels?: {
     siteName: string
-    generatedBy: string
     prompt: string
     skillsSummary: string
   }
@@ -34,13 +35,11 @@ export function ArenaTopNav({
     (locale === "en-US"
       ? {
           siteName: "Design Skill Arena",
-          generatedBy: "Homepage generated with GPT-5.5",
           prompt: "View prompt",
           skillsSummary: "Skills summary",
         }
       : {
           siteName: "设计技能竞技场",
-          generatedBy: "本页面由 GPT-5.5 生成",
           prompt: "查看提示词",
           skillsSummary: "Skills 汇总",
         })
@@ -60,7 +59,17 @@ export function ArenaTopNav({
         >
           {showGenerationMeta ? (
             <>
-              <span>{navLabels.generatedBy}</span>
+              <a
+                href={projectUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub: Design Skill Arena"
+                className="inline-flex min-h-11 items-center text-zinc-950 transition hover:text-zinc-600"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4 fill-current">
+                  <path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.4-4-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0C17.7 4.8 18.7 5 18.7 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.8c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" />
+                </svg>
+              </a>
               <span aria-hidden="true">/</span>
               <button
                 type="button"
