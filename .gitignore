@@ -35,11 +35,14 @@ yarn-error.log*
 !.env.example
 
 # local agent/editor workspace
+.idea/
+.playwright-cli/
 .codex/*
 !.codex/skills/
 !.codex/skills/**
 .trae/
 .wrangler/
+designs/
 
 # vercel
 .vercel

@@ -321,7 +321,7 @@ const generatedShowcases: ShowcaseItem[] = models.flatMap(({ model, provider, sl
   }))
 )
 
-export const showcases: ShowcaseItem[] = [
+const registeredShowcases: ShowcaseItem[] = [
   ...generatedShowcases,
   ...glmShowcases.map((item) => ({
     ...item,
@@ -335,6 +335,20 @@ export const showcases: ShowcaseItem[] = [
   })),
 ]
 
+const modelOrder = Array.from(new Set(registeredShowcases.map((item) => item.model)))
+const newestModelFirst = [...modelOrder].reverse()
+const modelRank = new Map(newestModelFirst.map((model, index) => [model, index]))
+const comboRank = new Map(baseShowcases.map((item, index) => [item.id, index]))
+
+export const showcases: ShowcaseItem[] = [...registeredShowcases].sort((a, b) => {
+  const aCombo = comboRank.get(a.sourceUrl ?? a.id) ?? Number.MAX_SAFE_INTEGER
+  const bCombo = comboRank.get(b.sourceUrl ?? b.id) ?? Number.MAX_SAFE_INTEGER
+  const comboDelta = aCombo - bCombo
+  if (comboDelta !== 0) return comboDelta
+
+  return (modelRank.get(a.model) ?? Number.MAX_SAFE_INTEGER) - (modelRank.get(b.model) ?? Number.MAX_SAFE_INTEGER)
+})
+
 export function getShowcase(id: string) {
   return showcases.find((item) => item.id === id)
 }
@@ -344,5 +358,5 @@ export function getRelatedShowcases(skillId: string) {
 }
 
 export const allProviders = Array.from(new Set(showcases.map((item) => item.provider)))
-export const allModels = Array.from(new Set(showcases.map((item) => item.model)))
+export const allModels = newestModelFirst
 export const allTags = Array.from(new Set(showcases.flatMap((item) => item.tags)))

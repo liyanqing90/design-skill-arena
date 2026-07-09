@@ -1,4 +1,12 @@
-const MODEL_SLUGS = ["gpt-55", "qwen-37-max", "kimi-2.7-code", "gemini-3.1-pro", "glm-5.2", "claude-opus-4.8"]
+const MODEL_SLUGS = [
+  "gpt-55",
+  "qwen-37-max",
+  "kimi-2.7-code",
+  "gemini-3.1-pro",
+  "gpt-5.6-sol",
+  "glm-5.2",
+  "claude-opus-4.8",
+]
 const SHOWCASE_IDS = [
   "standard-builder",
   "visual-frontend",

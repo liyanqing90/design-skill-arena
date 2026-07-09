@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { existsSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 
 import { skills } from "@/data/skills"
-import { showcases } from "@/data/showcases"
+import { allModels, showcases } from "@/data/showcases"
 import { messages } from "@/i18n"
 
 const expectedModels = [
@@ -15,6 +15,7 @@ const expectedModels = [
   "GLM 5.2",
   "Claude Opus 4.8",
 ]
+const newestModelsFirst = [...expectedModels].reverse()
 
 describe("showcases", () => {
   it("keeps all model showcase collections", () => {
@@ -34,6 +35,17 @@ describe("showcases", () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
+  it("orders filters and gallery by newest models within each skill chain", () => {
+    expect(allModels).toEqual(newestModelsFirst)
+    expect(showcases.slice(0, expectedModels.length).map((item) => item.title)).toEqual(
+      expectedModels.map(() => "Standard Builder")
+    )
+    expect(showcases.slice(0, expectedModels.length).map((item) => item.model)).toEqual(newestModelsFirst)
+    expect(showcases.slice(expectedModels.length, expectedModels.length * 2).map((item) => item.title)).toEqual(
+      expectedModels.map(() => "Visual Frontend")
+    )
+  })
+
   it("points gallery covers to existing compressed images", () => {
     showcases.forEach((item) => {
       const [screenshotPath, query] = item.screenshots.desktop.split("?")
@@ -41,6 +53,21 @@ describe("showcases", () => {
       expect(screenshotPath.endsWith(".webp")).toBe(true)
       expect(query).toMatch(/^v=[0-9a-f]{12}$/)
       expect(existsSync(path.join(process.cwd(), "public", screenshotPath.replace(/^\/+/, "")))).toBe(true)
+    })
+  })
+
+  it("allows voting for every registered model slug", () => {
+    const votesSource = readFileSync(path.join(process.cwd(), "functions/api/votes.js"), "utf8")
+    const modelSlugs = new Set(
+      showcases.map((item) => {
+        const sourceId = item.sourceUrl ?? item.id
+
+        return item.id.endsWith(`-${sourceId}`) ? item.id.slice(0, -(sourceId.length + 1)) : item.id
+      })
+    )
+
+    modelSlugs.forEach((slug) => {
+      expect(votesSource).toContain(`"${slug}"`)
     })
   })
 
