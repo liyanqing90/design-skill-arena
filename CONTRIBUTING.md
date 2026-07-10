@@ -47,6 +47,7 @@ model-screenshots/{modelSlug}/{showcaseId}/desktop.webp
 For production, maintainers may upload the same paths to R2 and set:
 
 ```bash
+NEXT_PUBLIC_USE_R2_ASSETS=1
 NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 ```
 

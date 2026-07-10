@@ -57,12 +57,12 @@ Production Cloudflare builds must keep:
 pnpm build:cloudflare
 ```
 
-This script sets `NEXT_PUBLIC_ASSET_BASE_URL` with a default of `https://arena-assets.xflux.cn`. Do not replace it with `pnpm build:static` for production.
+This script sets `NEXT_PUBLIC_USE_R2_ASSETS=1` and `NEXT_PUBLIC_ASSET_BASE_URL` with a default of `https://arena-assets.xflux.cn`. Do not replace it with `pnpm build:static` for production.
 
 For forks:
 
 - `pnpm build:static` uses local `public/` paths.
-- `NEXT_PUBLIC_ASSET_BASE_URL=https://your-assets.example.com pnpm build:static` points assets at another CDN/R2 domain.
+- `NEXT_PUBLIC_USE_R2_ASSETS=1 NEXT_PUBLIC_ASSET_BASE_URL=https://your-assets.example.com pnpm build:static` points assets at another CDN/R2 domain.
 
 ## Likes And D1
 
@@ -87,6 +87,7 @@ Required Cloudflare Pages settings:
 ```text
 Build command: pnpm build:cloudflare
 Output directory: out
+NEXT_PUBLIC_USE_R2_ASSETS=1
 NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 ```
 

@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "pnpm assets:screenshot-versions && next build",
     "build:static": "pnpm assets:screenshot-versions && NEXT_OUTPUT=export next build",
-    "build:cloudflare": "pnpm assets:screenshot-versions && NEXT_PUBLIC_ASSET_BASE_URL=${NEXT_PUBLIC_ASSET_BASE_URL:-https://arena-assets.xflux.cn} NEXT_OUTPUT=export next build",
+    "build:cloudflare": "pnpm assets:screenshot-versions && NEXT_PUBLIC_USE_R2_ASSETS=${NEXT_PUBLIC_USE_R2_ASSETS:-1} NEXT_PUBLIC_ASSET_BASE_URL=${NEXT_PUBLIC_ASSET_BASE_URL:-https://arena-assets.xflux.cn} NEXT_OUTPUT=export next build",
     "db:migrate:remote": "pnpm dlx wrangler@latest d1 migrations apply design-skill-arena-votes --remote",
     "deploy:cloudflare": "pnpm build:cloudflare && pnpm dlx wrangler@latest pages deploy out --project-name design-skill-arena --branch main",
     "start": "next start",

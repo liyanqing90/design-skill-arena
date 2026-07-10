@@ -30,7 +30,8 @@ pnpm preview:static
 ```
 
 The static output is written to `out/`. This command keeps screenshots on local
-`public/` paths unless `NEXT_PUBLIC_ASSET_BASE_URL` is set.
+`public/` paths unless `NEXT_PUBLIC_USE_R2_ASSETS=1` and
+`NEXT_PUBLIC_ASSET_BASE_URL` are both set.
 
 ## Cloudflare Pages
 
@@ -56,6 +57,7 @@ Cloudflare Pages build settings:
 ```text
 Build command: pnpm build:cloudflare
 Output directory: out
+Environment variable: NEXT_PUBLIC_USE_R2_ASSETS=1
 Environment variable: NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 ```
 
@@ -74,9 +76,11 @@ The vote table stores only `target_id`, an anonymous salted visitor hash, and a 
 
 ## Asset Hosting
 
-By default, screenshots load from local `public/` paths. For R2, set:
+By default, screenshots load from local `public/` paths. For R2, turn on the
+asset switch and set the asset origin:
 
 ```bash
+NEXT_PUBLIC_USE_R2_ASSETS=1
 NEXT_PUBLIC_ASSET_BASE_URL=https://arena-assets.xflux.cn
 ```
 
@@ -90,9 +94,10 @@ For an open-source fork, R2 is optional:
 
 1. Keep assets in `public/` and run `pnpm build:static`.
 2. Or create an R2 bucket, upload the same path structure, attach a public custom
-   domain, and set `NEXT_PUBLIC_ASSET_BASE_URL=https://your-assets.example.com`.
+   domain, and set `NEXT_PUBLIC_USE_R2_ASSETS=1` plus
+   `NEXT_PUBLIC_ASSET_BASE_URL=https://your-assets.example.com`.
 3. On Cloudflare Pages, use `pnpm build:cloudflare` and set the same environment
-   variable in project settings.
+   variables in project settings.
 
 Contributors should not commit generated screenshots for new models unless requested. The maintainer should capture real pages, compress the images to WebP, and upload them to R2.
 
