@@ -335,8 +335,20 @@ const registeredShowcases: ShowcaseItem[] = [
   })),
 ]
 
-const modelOrder = Array.from(new Set(registeredShowcases.map((item) => item.model)))
-const newestModelFirst = [...modelOrder].reverse()
+const modelDisplayOrder = [
+  "GPT 5.6 Sol",
+  "Gemini 3.1 Pro",
+  "Claude Opus 4.8",
+  "GLM 5.2",
+  "Kimi 2.7 Code",
+  "Qwen 3.7 Max",
+  "GPT-5.5",
+] as const
+const registeredModels = Array.from(new Set(registeredShowcases.map((item) => item.model)))
+const newestModelFirst = [
+  ...modelDisplayOrder.filter((model) => registeredModels.includes(model)),
+  ...registeredModels.filter((model) => !modelDisplayOrder.includes(model as (typeof modelDisplayOrder)[number])),
+]
 const modelRank = new Map(newestModelFirst.map((model, index) => [model, index]))
 const comboRank = new Map(baseShowcases.map((item, index) => [item.id, index]))
 

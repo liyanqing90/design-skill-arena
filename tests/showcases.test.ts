@@ -15,7 +15,15 @@ const expectedModels = [
   "GLM 5.2",
   "Claude Opus 4.8",
 ]
-const newestModelsFirst = [...expectedModels].reverse()
+const newestModelsFirst = [
+  "GPT 5.6 Sol",
+  "Gemini 3.1 Pro",
+  "Claude Opus 4.8",
+  "GLM 5.2",
+  "Kimi 2.7 Code",
+  "Qwen 3.7 Max",
+  "GPT-5.5",
+]
 
 describe("showcases", () => {
   it("keeps all model showcase collections", () => {
