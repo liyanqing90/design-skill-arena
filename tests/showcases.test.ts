@@ -12,10 +12,12 @@ const expectedModels = [
   "Kimi 2.7 Code",
   "Gemini 3.1 Pro",
   "GPT 5.6 Sol",
+  "Kimi K3",
   "GLM 5.2",
   "Claude Opus 4.8",
 ]
 const newestModelsFirst = [
+  "Kimi K3",
   "GPT 5.6 Sol",
   "Gemini 3.1 Pro",
   "Claude Opus 4.8",

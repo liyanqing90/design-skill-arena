@@ -307,6 +307,7 @@ const models = [
   { model: "Kimi 2.7 Code", provider: "Moonshot", slug: "kimi-2.7-code" },
   { model: "Gemini 3.1 Pro", provider: "Google", slug: "gemini-3.1-pro" },
   { model: "GPT 5.6 Sol", provider: "OpenAI", slug: "gpt-5.6-sol" },
+  { model: "Kimi K3", provider: "Moonshot", slug: "kimi-k3" },
 ] as const
 
 const generatedShowcases: ShowcaseItem[] = models.flatMap(({ model, provider, slug }) =>
@@ -336,6 +337,7 @@ const registeredShowcases: ShowcaseItem[] = [
 ]
 
 const modelDisplayOrder = [
+  "Kimi K3",
   "GPT 5.6 Sol",
   "Gemini 3.1 Pro",
   "Claude Opus 4.8",

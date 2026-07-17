@@ -4,6 +4,7 @@ const MODEL_SLUGS = [
   "kimi-2.7-code",
   "gemini-3.1-pro",
   "gpt-5.6-sol",
+  "kimi-k3",
   "glm-5.2",
   "claude-opus-4.8",
 ]
