@@ -48,6 +48,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
+      <head>
+        <script
+          defer
+          src="https://vibeloft.ai/telemetry/v1.js"
+          data-vl-product-id="bcc09f6c-62e6-4720-aa80-25201b45b4d9"
+          data-vl-auth-key="vl_web.k5LBk166v8KODGQOJ5ZvcBU88GZJ913HDvLvFdGv9j4"
+        />
+      </head>
       <body className="flex min-h-full flex-col">
         <SiteChrome>{children}</SiteChrome>
       </body>
