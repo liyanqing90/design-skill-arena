@@ -1,8 +1,47 @@
 # Design Skill Arena
 
-Design Skill Arena is a static gallery for comparing how different AI models implement the same Muse AI Campaign Studio brief with different frontend design skill chains.
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-It is a showcase, not a benchmark. The site avoids scores and rankings; each card opens a real standalone page generated for one model and one skill chain.
+<p align="center">
+  <strong>One product brief. Multiple AI models and frontend design skill chains.</strong>
+</p>
+
+<p align="center">
+  <a href="https://arena.xflux.cn"><strong>Explore the live Arena</strong></a>
+</p>
+
+Design Skill Arena is a static gallery for observing how different AI models implement the same **Muse AI Campaign Studio** brief with different frontend design skill chains.
+
+Each entry opens a real standalone page. The project is a **showcase, not a benchmark**: it avoids aggregate scores and rankings so visitors can inspect the actual product experience and make their own judgment.
+
+## Why this project exists
+
+The quality of AI-generated frontend work depends on more than the model. Design context, skill composition, component constraints, responsive implementation, and the refinement process all shape the result.
+
+Design Skill Arena makes those differences visible under a shared setup:
+
+- the same product brief;
+- the same page objective;
+- isolated implementations for each model;
+- different frontend design skill chains;
+- one consistent browsing experience.
+
+The goal is not to declare a universal winner. It is to observe questions such as:
+
+- Which skill chains create clearer hierarchy and stronger product structure?
+- Which implementations feel like real software rather than generated templates?
+- How do component systems, responsiveness, and polish affect the result?
+- How do model capability and design methodology interact?
+
+## What you can compare
+
+- Information architecture and page rhythm
+- Visual hierarchy and typography
+- Component consistency
+- Product character and brand expression
+- Desktop and mobile responsiveness
+- Motion, interaction, and finishing quality
+- Interpretation of the same source brief
 
 ## Stack
 
@@ -12,6 +51,7 @@ It is a showcase, not a benchmark. The site avoids scores and rankings; each car
 - shadcn/base UI primitives
 - Static export for Cloudflare Pages
 - Optional Cloudflare R2 asset hosting
+- Optional Cloudflare D1 likes
 
 ## Local Development
 
@@ -148,3 +188,7 @@ pnpm lint
 pnpm test
 pnpm build:static
 ```
+
+---
+
+Created and maintained by [Qingye](https://github.com/liyanqing90).
