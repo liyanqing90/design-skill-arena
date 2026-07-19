@@ -13,10 +13,12 @@ const expectedModels = [
   "Gemini 3.1 Pro",
   "GPT 5.6 Sol",
   "Kimi K3",
+  "Qwen 3.8 Max",
   "GLM 5.2",
   "Claude Opus 4.8",
 ]
 const newestModelsFirst = [
+  "Qwen 3.8 Max",
   "Kimi K3",
   "GPT 5.6 Sol",
   "Gemini 3.1 Pro",
